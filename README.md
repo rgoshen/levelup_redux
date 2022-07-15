@@ -15,9 +15,35 @@
 
 ## An Introduction to Redux
 
+Redux is a predictable state container for JavaScript apps.
+
+It helps you write applications that behave consistently, run in different environments (client, server, and native), and are easy to test.
+
 [toc](#toc)
 
 ## Adding Redux & Our First Store
+
+_src/App.js_
+
+```JavaScript
+import { createStore } from 'redux';
+import './App.css';
+
+function App() {
+  return <div className='App'></div>;
+}
+
+export default App;
+
+const hello = () => ({
+  welcome: 'Hello',
+});
+const store = createStore(hello);
+
+console.log(store.getState());
+```
+
+![output1](assets/images/output_1.png)
 
 [toc](#toc)
 
