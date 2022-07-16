@@ -255,9 +255,17 @@ export default function (state = initialState, action) {
 
 ## Redux DevTools
 
+- download extension for browser
+- `npm i redux-devtools-extension`
+- in `App.js` 
+    - `import { composeWithDevTools } from 'redux-devtools-extension';`
+    - pass into createStore along with initial state of the store
+        - `const store = createStore(rootReducer, {}, composeWithDevTools());`
+        - `composeWithDevTools` will not always be the thrid argument passed in `createStore`, if your app will use middleware, then that gets passed in before `composeWithDevTools`
+
 [toc](#toc)
 
-## COnnecting to React
+## Connecting to React
 
 [toc](#toc)
 

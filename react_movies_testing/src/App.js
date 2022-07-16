@@ -10,7 +10,7 @@ import './App.css';
 import MoviesList from './movies/MoviesList';
 import MovieDetail from './movies/MovieDetail';
 
-const store = createStore(rootReducer);
+const store = createStore(rootReducer, {});
 
 const App = () => (
   <Provider store={store}>
