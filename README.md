@@ -170,6 +170,14 @@ console.log(store.getState());
 
 ## Adding Redux to Our React App
 
+- `<Provider store={}></Provider>`
+    - must wrap your entry point into your app (ex: for this tutorial, `App.js`)
+    - this connects Redux to the react app using connect
+        - makes grabbing props in and out of your components very easy and dispatching actions
+    - has two parameters
+        - store
+        - children
+
 [toc](#toc)
 
 ## Writing a Root Reducer
