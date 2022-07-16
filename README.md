@@ -177,10 +177,79 @@ console.log(store.getState());
     - has two parameters
         - store
         - children
+- create your store and pass it into the provider
+
+_src/App.js_
+
+```javascript
+...
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+...
+
+//fake store for now
+const hello = () => 'hello';
+const store = createStore(hello);
+
+const App = () => (
+  <Provider store={store}>
+    <Router>
+      <div className='App'>
+        <header className='App-header'>
+          <Link to='/'>
+            <img src={logo} className='App-logo' alt='logo' />
+          </Link>
+        </header>
+        <Switch>
+          <Route exact path='/' component={MoviesList} />
+          <Route path='/:id' component={MovieDetail} />
+        </Switch>
+      </div>
+    </Router>
+  </Provider>
+);
+```
 
 [toc](#toc)
 
 ## Writing a Root Reducer
+
+- combines all reducers in the app into one reducer
+    - `combineReducers`
+
+_src/rootRedcuer.js_
+
+```javascript
+import { combineReducers } from 'redux';
+
+import message from './reducer';
+
+const rootReducer = combineReducers({
+  message,
+});
+
+export default rootReducer;
+```
+
+_src/reducer.js_
+
+```javascript
+const initialState = {
+  messageVisibility: false,
+};
+
+export default function (state = initialState, action) {
+  const { type } = action;
+
+  switch (type) {
+    case 'TOGGLE_MESSAGE':
+      return state;
+
+    default:
+      return state;
+  }
+}
+```
 
 [toc](#toc)
 

@@ -3,14 +3,14 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
+import rootReducer from './rootReducer';
 import logo from './logo.svg';
 import './App.css';
 
 import MoviesList from './movies/MoviesList';
 import MovieDetail from './movies/MovieDetail';
 
-const hello = () => 'hello';
-const store = createStore(hello);
+const store = createStore(rootReducer);
 
 const App = () => (
   <Provider store={store}>
