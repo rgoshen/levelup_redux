@@ -49,6 +49,74 @@ console.log(store.getState());
 
 ## Our First Reducer & Actions
 
+_src/App.js_
+
+```javascript
+import { createStore } from 'redux';
+import './App.css';
+
+function App() {
+  return <div className='App'></div>;
+}
+
+export default App;
+
+const defaultState = {
+  welcome: 'Hi',
+  otherState: 'some stuff',
+};
+
+// reducer function
+const greeting = (state = defaultState, action) => {
+  switch (action.type) {
+    case 'GREET_ME':
+      return { welcome: 'Hello Rick' };
+    case 'GREET_WORLD':
+      return { welcome: 'Hello World' };
+    default:
+      return state;
+  }
+};
+
+const store = createStore(greeting);
+console.log(store.getState());
+
+// action object (describer)
+store.dispatch({
+  type: 'GREET_ME',
+});
+
+console.log(store.getState());
+```
+
+![first dispatch output](assets/images/first_dispatch_output.png)
+
+- action is an object and describes what the action is supposed to do
+- the store then uses its dispatch method to call the action
+
+![before and after](assets/images/before_after_dispatch.png)
+
+- you can see the above image, the reducer function does not modify state, it completely replaces the state tree
+- in order to nullify this, you need to spread in the state first in each return from the reducer
+
+_src/App.js_
+
+```javascript
+// reducer function
+const greeting = (state = defaultState, action) => {
+  switch (action.type) {
+    case 'GREET_ME':
+      return { ...state, welcome: 'Hello Rick' };
+    case 'GREET_WORLD':
+      return { ...state, welcome: 'Hello World' };
+    default:
+      return state;
+  }
+};
+```
+
+![modified reducer output](assets/images/spread_state_modified_reducer.png)
+
 [toc](#toc)
 
 ## Properties On Actions & In Reducers
