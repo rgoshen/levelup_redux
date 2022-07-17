@@ -531,6 +531,48 @@ export default connect(mapStateToProps, mapDispatchToProps)(Toggle);
 
 ## Bind Action Creators
 
+- eliminates the need to use dispatch within component
+
+_src/Toggle.js_
+
+```javascript
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import { toggleMessage } from './actions';
+
+const Toggle = ({ messageVisibility, toggleMessage }) => (
+  <div className='message'>
+    {messageVisibility && (
+      <p>You will be seeing this if redux action is toggled</p>
+    )}
+    <button onClick={toggleMessage}>Toggle Me</button>
+  </div>
+);
+
+const mapStateToProps = (state) => ({
+  messageVisibility: state.message.messageVisibility,
+});
+
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      toggleMessage,
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(Toggle);
+```
+
+`const mapDispatchToProps = (dispatch) => bindActionCreators({ toggleMessage, }, dispatch);` basically takes the function toggleMessage and turns it into a prop
+    - what this does it is bind dispatch (second argument) to the first argument (object of all actions for this particular component)
+    - eliminates the need to pass dispatch into the component
+    - just pass in toggleMessage instead
+
+- In the grand scheme of things, it may add some code, but it is much cleaner and easier to read
+
 [toc](#toc)
 
 ## Action Type Constants
