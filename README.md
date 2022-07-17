@@ -577,6 +577,48 @@ export default connect(mapStateToProps, mapDispatchToProps)(Toggle);
 
 ## Action Type Constants
 
+_src/actions.js_
+
+```javascript
+export const TOGGLE_MESSAGE = 'TOGGLE_MESSAGE';
+
+export function toggleMessage() {
+  return {
+    type: 'TOGGLE_MESSAGE',
+  };
+}
+```
+
+- used inside of the reducer
+
+_src/reducer.js_
+
+```javascript
+import { TOGGLE_MESSAGE } from './actions';
+
+const initialState = {
+  messageVisibility: false,
+};
+
+export default function (state = initialState, action) {
+  const { type } = action;
+  switch (type) {
+    case TOGGLE_MESSAGE:
+      return {
+        ...state,
+        messageVisibility: !state.messageVisibility,
+      };
+    default:
+      return state;
+  }
+}
+```
+
+- prevent typo bugs and typing errors from going uncaught
+- example: if you mistype 'TOGGLE_MESAGE' and did not use an action constant (exactly what we have been doing so far) it would still compile and render your app
+- you would not know you have any issue until you tried to use the toggle button
+- however, if you use an action constant and then mistype it, it will cause your app to fail instead
+
 [toc](#toc)
 
 ## Adding Middleware Redux Logger
