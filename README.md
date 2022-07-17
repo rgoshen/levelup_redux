@@ -970,6 +970,159 @@ const MovieGrid = styled.div`
 
 ## Resetting Our Store & Props in Actions
 
+_src/features/movies/reducer.js_
+
+```javascript
+import { GET_MOVIES, GET_MOVIE, RESET_MOVIE } from './actions';
+
+const initialState = {
+  movies: [],
+  movie: {},
+  moviesLoaded: false,
+  movieLoaded: false,
+};
+
+export default function (state = initialState, action) {
+  const { type, data } = action;
+  switch (type) {
+    case GET_MOVIES:
+      return { ...state, movies: data, moviesLoaded: true };
+    case GET_MOVIE:
+      return { ...state, movie: data, movieLoaded: true };
+    case RESET_MOVIE:
+      return { ...state, movie: {}, movieLoaded: false };
+    default:
+      return state;
+  }
+}
+```
+
+_src/features/movies/actions.js_
+
+```javascript
+export const GET_MOVIES = 'GET_MOVIES';
+export const GET_MOVIE = 'GET_MOVIE';
+export const RESET_MOVIE = 'RESET_MOVIE';
+
+export function getMovies() {
+  return async function (dispatch) {
+    const res = await fetch(
+      `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.REACT_APP_API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1`
+    );
+    const movies = await res.json();
+    return dispatch({
+      type: 'GET_MOVIES',
+      data: movies.results,
+    });
+  };
+}
+export function getMovie(id) {
+  return async function (dispatch) {
+    const res = await fetch(
+      `https://api.themoviedb.org/3/movie/${id}?api_key=${process.env.REACT_APP_API_KEY}&language=en-US`
+    );
+    const movie = await res.json();
+    return dispatch({
+      type: 'GET_MOVIE',
+      data: movie,
+    });
+  };
+}
+
+export function resetMovie() {
+  return {
+    type: 'RESET_MOVIE',
+  };
+}
+```
+
+_src/features/movies/MovieDetail.js_
+
+```javascript
+/* eslint react/no-did-mount-set-state: 0 */
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import styled from 'styled-components';
+import Overdrive from 'react-overdrive';
+import { Poster } from './Movie';
+import { getMovie, resetMovie } from './actions';
+
+const POSTER_PATH = 'http://image.tmdb.org/t/p/w154';
+const BACKDROP_PATH = 'http://image.tmdb.org/t/p/w1280';
+
+class MovieDetail extends Component {
+  async componentDidMount() {
+    const { getMovie, match } = this.props;
+    getMovie(match.params.id);
+  }
+
+  componentWillUnmount() {
+    const { resetMovie } = this.props;
+    resetMovie();
+  }
+
+  render() {
+    const { movie } = this.props;
+    if (!movie.id) return null;
+    return (
+      <MovieWrapper backdrop={`${BACKDROP_PATH}${movie.backdrop_path}`}>
+        <MovieInfo>
+          <Overdrive id={`${movie.id}`}>
+            <Poster
+              src={`${POSTER_PATH}${movie.poster_path}`}
+              alt={movie.title}
+            />
+          </Overdrive>
+          <div>
+            <h1>{movie.title}</h1>
+            <h3>{movie.release_date}</h3>
+            <p>{movie.overview}</p>
+          </div>
+        </MovieInfo>
+      </MovieWrapper>
+    );
+  }
+}
+
+const mapStateToProps = (state) => ({
+  movie: state.movies.movie,
+  isLoaded: state.movies.movieLoaded,
+});
+
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      getMovie,
+      resetMovie,
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(MovieDetail);
+
+const MovieWrapper = styled.div`
+  position: relative;
+  padding-top: 50vh;
+  background: url(${(props) => props.backdrop}) no-repeat;
+  background-size: cover;
+`;
+
+const MovieInfo = styled.div`
+  background: white;
+  text-align: left;
+  padding: 2rem 10%;
+  display: flex;
+  > div {
+    margin-left: 20px;
+  }
+  img {
+    position: relative;
+    top: -5rem;
+  }
+`;
+```
+
 [toc](#toc)
 
 ## Local Storage
