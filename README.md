@@ -687,6 +687,156 @@ export default App;
 
 ## Redux Thunks and API Calls for Actions
 
+`npm i redux-thunk`
+
+A thunk is a function that returns a function
+
+Important because it allows us to return a function from an action
+
+_src/actions.js_
+
+```javascript
+export const TOGGLE_MESSAGE = 'TOGGLE_MESSAGE';
+export const GET_MOVIES = 'GET_MOVIES';
+
+export function toggleMessage() {
+  return {
+    type: 'TOGGLE_MESSAGE',
+  };
+}
+
+export function getMovies() {
+  return async function (dispatch) {
+    const res = await fetch('https://api.themoviedb.org/3/discover/movie?api_key=65e043c24785898be00b4abc12fcdaae&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1');
+    const movies = await res.json();
+    return dispatch({
+      type: 'GET_MOVIES',
+      data: movies.results,
+    });
+  };
+}
+```
+
+_src/App.js_
+
+```javascript
+/* eslint react/no-did-mount-set-state: 0 */
+import React, { Component } from 'react';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Link,
+} from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { applyMiddleware, createStore } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import logger from 'redux-logger';
+import thunk from 'redux-thunk';
+
+import logo from './logo.svg';
+import './App.css';
+
+import rootReducer from './rootReducer';
+
+import MoviesList from './MoviesList';
+import MovieDetail from './MovieDetail';
+import Toggle from './Toggle';
+
+const middleware = [logger, thunk];
+
+const store = createStore(
+  rootReducer,
+  {},
+  composeWithDevTools(applyMiddleware(...middleware)),
+);
+
+const App = () => (
+  <Provider store={store}>
+    <Router>
+      <div className="App">
+        <header className="App-header">
+          <Link to="/">
+            <img src={logo} className="App-logo" alt="logo" />
+          </Link>
+        </header>
+        <Toggle />
+        <Switch>
+          <Route exact path="/" component={MoviesList} />
+          <Route path="/:id" component={MovieDetail} />
+        </Switch>
+      </div>
+    </Router>
+  </Provider>
+);
+
+export default App;
+```
+
+_src/reducer.js_
+
+```javascript
+import { TOGGLE_MESSAGE, GET_MOVIES } from './actions';
+
+const initialState = {
+  messageVisibility: false,
+  movies: [],
+};
+
+export default function (state = initialState, action) {
+  const { type, data } = action;
+  switch (type) {
+    case TOGGLE_MESSAGE:
+      return {
+        ...state,
+        messageVisibility: !state.messageVisibility,
+      };
+    case GET_MOVIES:
+      return {
+        ...state,
+        movies: data,
+      };
+    default:
+      return state;
+  }
+}
+```
+
+_src/Toggle.js_
+
+```javascript
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import { toggleMessage, getMovies } from './actions';
+
+const Toggle = ({ messageVisibility, toggleMessage, getMovies }) => (
+  <div>
+    {messageVisibility &&
+      <p>You will be seeing this if redux action is toggled</p>
+    }
+    <button onClick={toggleMessage}>
+      Toggle Me
+    </button>
+    <button onClick={getMovies}>
+      Load Movies
+    </button>
+  </div>
+);
+
+const mapStateToProps = state => ({
+  messageVisibility: state.message.messageVisibility,
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+  toggleMessage,
+  getMovies,
+}, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Toggle);
+```
+
 [toc](#toc)
 
 ## Project Organization
