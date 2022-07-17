@@ -5,13 +5,19 @@ const initialState = {
   movie: {},
   moviesLoaded: false,
   movieLoaded: false,
+  moviesLoadedAt: null,
 };
 
 export default function (state = initialState, action) {
   const { type, data } = action;
   switch (type) {
     case GET_MOVIES:
-      return { ...state, movies: data, moviesLoaded: true };
+      return {
+        ...state,
+        movies: data,
+        moviesLoaded: true,
+        moviesLoadedAt: new Date(),
+      };
     case GET_MOVIE:
       return { ...state, movie: data, movieLoaded: true };
     case RESET_MOVIE:

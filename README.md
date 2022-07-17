@@ -1127,4 +1127,27 @@ const MovieInfo = styled.div`
 
 ## Local Storage
 
+`npm i redux-localstorage-simple`
+
+- not the only package that can be used
+- persists redux store to local storage
+
+_src/App.js_
+
+```javascript
+
+```
+
+_src/features/movies/reducers.js_
+
+```javascript
+
+```
+
+_src/features/movies/MoviesList.js_
+
+```javascript
+
+```
+
 [toc](#toc)
