@@ -1135,19 +1135,145 @@ const MovieInfo = styled.div`
 _src/App.js_
 
 ```javascript
+/* eslint react/no-did-mount-set-state: 0 */
+import React, { Component } from 'react';
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import logger from 'redux-logger';
+import thunk from 'redux-thunk';
+import { save, load } from 'redux-localstorage-simple';
 
+import logo from './logo.svg';
+import './App.css';
+
+import rootReducer from './rootReducer';
+
+import MoviesList from './features/movies/MoviesList';
+import MovieDetail from './features/movies/MovieDetail';
+import Toggle from './features/toggle/Toggle';
+
+const middleware = [logger, thunk];
+
+const store = createStore(
+  rootReducer,
+  load(),
+  composeWithDevTools(applyMiddleware(...middleware, save()))
+);
+
+const App = () => (
+  <Provider store={store}>
+    <Router>
+      <div className='App'>
+        <header className='App-header'>
+          <Link to='/'>
+            <img src={logo} className='App-logo' alt='logo' />
+          </Link>
+        </header>
+        <Toggle />
+        <Switch>
+          <Route exact path='/' component={MoviesList} />
+          <Route path='/:id' component={MovieDetail} />
+        </Switch>
+      </div>
+    </Router>
+  </Provider>
+);
+
+export default App;
 ```
 
-_src/features/movies/reducers.js_
+_src/features/movies/reducer.js_
 
 ```javascript
+import { GET_MOVIES, GET_MOVIE, RESET_MOVIE } from './actions';
 
+const initialState = {
+  movies: [],
+  movie: {},
+  moviesLoaded: false,
+  movieLoaded: false,
+  moviesLoadedAt: null,
+};
+
+export default function (state = initialState, action) {
+  const { type, data } = action;
+  switch (type) {
+    case GET_MOVIES:
+      return {
+        ...state,
+        movies: data,
+        moviesLoaded: true,
+        moviesLoadedAt: new Date(),
+      };
+    case GET_MOVIE:
+      return { ...state, movie: data, movieLoaded: true };
+    case RESET_MOVIE:
+      return { ...state, movie: {}, movieLoaded: false };
+    default:
+      return state;
+  }
+}
 ```
 
 _src/features/movies/MoviesList.js_
 
 ```javascript
+/* eslint react/no-did-mount-set-state: 0 */
+import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
+import styled from 'styled-components';
+import Movie from './Movie';
+import { getMovies } from './actions';
+
+class MoviesList extends PureComponent {
+  componentDidMount() {
+    const { getMovies, isLoaded, moviesLoadedAt } = this.props;
+    const oneHour = 60 * 60 * 1000;
+    if (!isLoaded || new Date() - new Date(moviesLoadedAt) > oneHour) {
+      getMovies();
+    }
+  }
+
+  render() {
+    const { movies, isLoaded } = this.props;
+    // TODO: add loading spinner component
+    if (!isLoaded) return <h1 className='loading'>Loading...</h1>;
+    return (
+      <MovieGrid>
+        {movies.map((movie) => (
+          <Movie key={movie.id} movie={movie} />
+        ))}
+      </MovieGrid>
+    );
+  }
+}
+
+const mapStateToProps = (state) => ({
+  movies: state.movies.movies,
+  isLoaded: state.movies.moviesLoaded,
+  moviesLoadedAt: state.movies.moviesLoadedAt,
+});
+
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      getMovies,
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(MoviesList);
+
+const MovieGrid = styled.div`
+  display: grid;
+  padding: 1rem;
+  grid-template-columns: repeat(6, 1fr);
+  grid-row-gap: 1rem;
+`;
 ```
 
 [toc](#toc)
