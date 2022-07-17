@@ -171,12 +171,12 @@ console.log(store.getState());
 ## Adding Redux to Our React App
 
 - `<Provider store={}></Provider>`
-    - must wrap your entry point into your app (ex: for this tutorial, `App.js`)
-    - this connects Redux to the react app using connect
-        - makes grabbing props in and out of your components very easy and dispatching actions
-    - has two parameters
-        - store
-        - children
+  - must wrap your entry point into your app (ex: for this tutorial, `App.js`)
+  - this connects Redux to the react app using connect
+    - makes grabbing props in and out of your components very easy and dispatching actions
+  - has two parameters
+    - store
+    - children
 - create your store and pass it into the provider
 
 _src/App.js_
@@ -215,7 +215,7 @@ const App = () => (
 ## Writing a Root Reducer
 
 - combines all reducers in the app into one reducer
-    - `combineReducers`
+  - `combineReducers`
 
 _src/rootRedcuer.js_
 
@@ -257,15 +257,132 @@ export default function (state = initialState, action) {
 
 - download extension for browser
 - `npm i redux-devtools-extension`
-- in `App.js` 
-    - `import { composeWithDevTools } from 'redux-devtools-extension';`
-    - pass into createStore along with initial state of the store
-        - `const store = createStore(rootReducer, {}, composeWithDevTools());`
-        - `composeWithDevTools` will not always be the thrid argument passed in `createStore`, if your app will use middleware, then that gets passed in before `composeWithDevTools`
+- in `App.js`
+  - `import { composeWithDevTools } from 'redux-devtools-extension';`
+  - pass into createStore along with initial state of the store
+    - `const store = createStore(rootReducer, {}, composeWithDevTools());`
+    - `composeWithDevTools` will not always be the thrid argument passed in `createStore`, if your app will use middleware, then that gets passed in before `composeWithDevTools`
 
 [toc](#toc)
 
 ## Connecting to React
+
+- `connect` allows to access your store in any given component easily
+  - connects Redux to React
+
+_src/Toggle.js_
+
+```javascript
+import React from 'react';
+import { connect } from 'react-redux';
+
+const Toggle = ({ messageVisibility }) => (
+  <div>
+    {messageVisibility &&
+      <p>You will be seeing this if redux action is toggled</p>
+    }
+    <button>Toggle Me</button>
+  </div>
+);
+
+const mapStateToProps = state => ({
+  messageVisibility: state.message.messageVisibility,
+});
+
+export default connect(mapStateToProps)(Toggle);
+```
+
+- last line connects the component to the Redux store
+- now when the app uses the Toggle component, it will be using an enhanced version of it since Toggle has access to the Redux store
+- `mapStateToProps()` - allows you to pick which pieces of your store your component will have access to
+    - as your app store scales, you don't need every component to access to the entire state tree
+    - they should only have access to what they need and nothing more
+
+_src/App.js_
+
+```javascript
+/* eslint react/no-did-mount-set-state: 0 */
+import React, { Component } from 'react';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Link,
+} from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
+
+import logo from './logo.svg';
+import './App.css';
+
+import rootReducer from './rootReducer';
+
+import MoviesList from './MoviesList';
+import MovieDetail from './MovieDetail';
+import Toggle from './Toggle';
+
+const store = createStore(
+  rootReducer,
+  {},
+  composeWithDevTools(),
+);
+
+const App = () => (
+  <Provider store={store}>
+    <Router>
+      <div className="App">
+        <header className="App-header">
+          <Link to="/">
+            <img src={logo} className="App-logo" alt="logo" />
+          </Link>
+        </header>
+        <Toggle />
+        <Switch>
+          <Route exact path="/" component={MoviesList} />
+          <Route path="/:id" component={MovieDetail} />
+        </Switch>
+      </div>
+    </Router>
+  </Provider>
+);
+
+export default App;
+```
+
+_src/reducer.js_
+
+```javascript
+const initialState = {
+  messageVisibility: false,
+};
+
+export default function (state = initialState, action) {
+  const { type } = action;
+  switch (type) {
+    case 'TOGGLE_MESSAGE':
+      return state;
+    default:
+      return state;
+  }
+}
+```
+
+_src/rootReducer.js_
+
+```javascript
+import { combineReducers } from 'redux';
+
+import message from './reducer';
+
+const rootReducer = combineReducers({
+  message,
+});
+
+export default rootReducer;
+```
+
+![react dev tool](assets/images/toggle_reactDevTool.png)![redux dev tool](assets/images/toggle_reduxDevTool.png)
 
 [toc](#toc)
 
