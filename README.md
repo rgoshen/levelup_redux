@@ -454,6 +454,79 @@ export default connect(mapStateToProps)(Toggle);
 
 ## Action Creators Explained
 
+[Action Creators](https://redux.js.org/usage/reducing-boilerplate#action-creators)
+
+_src/Toggle.js_
+
+```javascript
+import React from 'react';
+import { connect } from 'react-redux';
+
+const Toggle = ({ messageVisibility, dispatch }) => (
+  <div>
+    {messageVisibility && (
+      <p>You will be seeing this if redux action is toggled</p>
+    )}
+    <button onClick={() => dispatch({ type: 'TOGGLE_MESSAGE' })}>
+      Toggle Me
+    </button>
+  </div>
+);
+
+const mapStateToProps = (state) => ({
+  messageVisibility: state.message.messageVisibility,
+});
+
+export default connect(mapStateToProps)(Toggle);
+```
+
+- as is right now, Toggle.js does not make much sense because the action and visibility state all live within the toggle component
+- the idea behind Redux to save the state in the global store if they are taking place outside the component
+    - everytime you need an event to fire, do you want to have to create a function to dispatch the function? (like the `onClick` event in the avoe code)
+        - Hint: no
+- better to create a function 'toggleMessage' in a separate file, import that function into the component and then call that function instead
+    - makes the action reusable
+
+_src/actions.js_
+
+```javascript
+export function toggleMessage() {
+  return {
+    type: 'TOGGLE_MESSAGE',
+  };
+}
+``` 
+
+_src/Toggle.js_
+
+```javascript
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import { toggleMessage } from './actions';
+
+const Toggle = ({ messageVisibility, toggleMessage }) => (
+  <div>
+    {messageVisibility &&
+      <p>You will be seeing this if redux action is toggled</p>
+    }
+    <button onClick={toggleMessage}>Toggle Me
+    </button>
+  </div>
+);
+
+const mapStateToProps = state => ({
+  messageVisibility: state.message.messageVisibility,
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+  toggleMessage,
+}, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Toggle);
+```
+
 [toc](#toc)
 
 ## Bind Action Creators
