@@ -9,12 +9,16 @@ import { getMovies } from './actions';
 
 class MoviesList extends PureComponent {
   componentDidMount() {
-    const { getMovies } = this.props;
-    getMovies();
+    const { getMovies, isLoaded } = this.props;
+    if (!isLoaded) {
+      getMovies();
+    }
   }
 
   render() {
-    const { movies } = this.props;
+    const { movies, isLoaded } = this.props;
+    // TODO: add loading spinner component
+    if (!isLoaded) return <h1 className='loading'>Loading...</h1>;
     return (
       <MovieGrid>
         {movies.map((movie) => (
@@ -27,6 +31,7 @@ class MoviesList extends PureComponent {
 
 const mapStateToProps = (state) => ({
   movies: state.movies.movies,
+  isLoaded: state.movies.moviesLoaded,
 });
 
 const mapDispatchToProps = (dispatch) =>
