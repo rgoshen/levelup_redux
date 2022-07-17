@@ -388,6 +388,68 @@ export default rootReducer;
 
 ## Dispatching Actions from Components
 
+_src/reducer.js_
+
+```javascript
+const initialState = {
+  messageVisibility: false,
+};
+
+export default function (state = initialState, action) {
+  const { type } = action;
+  switch (type) {
+    case 'TOGGLE_MESSAGE':
+      return {
+        ...state,
+        messageVisibility: !state.messageVisibility,
+      };
+    default:
+      return state;
+  }
+}
+```
+
+_src/Toggle.js_
+
+```javascript
+import React from 'react';
+import { connect } from 'react-redux';
+
+const Toggle = ({ messageVisibility, dispatch }) => (
+  <div>
+    {messageVisibility && (
+      <p>You will be seeing this if redux action is toggled</p>
+    )}
+    <button onClick={() => dispatch({ type: 'TOGGLE_MESSAGE' })}>
+      Toggle Me
+    </button>
+  </div>
+);
+
+const mapStateToProps = (state) => ({
+  messageVisibility: state.message.messageVisibility,
+});
+
+export default connect(mapStateToProps)(Toggle);
+```
+
+- Toggle has access to dispatch because it is a prop of connect
+- in React dev Tools if you select the Toggle component, you will see in the props section `dispatch()`
+
+![react dev tools](assets/images/toggle_reactDevTool.png)
+
+- after adding an `onClick` event to the toggle button, have the arrow function return `dispatch({type: 'TOGGLE_MESSAGE'})`, you will see below in the screen shot, the toggle action fires
+    - this tells Redux on this event, dispatch 'TOGGLE_MESSAGE' action
+    - the reducer receives an action of 'TOGGLE_MESSAGE'
+    - the reducer then looks for that action type
+    - once it finds the action type, it will return whatever that type says to return, in this instance initially it just returns state (we will actually have it return new state where it will toggle `messageVisibility` to the opposite of whatever it is currently in state as
+
+![inital toggle action](assets/images/initial_toggle_action.gif)
+
+- modify the reducer to actually return what we want it to return, `{...state, messageVisibility: !state.messageVisibility}`
+
+![update reducer](assets/images/updated_reducer_action.gif)
+
 [toc](#toc)
 
 ## Action Creators Explained

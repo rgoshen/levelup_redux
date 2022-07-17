@@ -18,10 +18,18 @@
 }
 
 @keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 h3 {
-  color: #FFF;
+  color: #fff;
+}
+
+.message {
+  color: #fff;
 }
