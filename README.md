@@ -839,10 +839,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(Toggle);
 
 [toc](#toc)
 
-## Project Organization
-
-[toc](#toc)
-
 ## Loading Our Data with componentDidMount
 
 [toc](#toc)
