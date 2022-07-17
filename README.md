@@ -12,6 +12,22 @@
   - [TOC](#toc)
   - [An Introduction to Redux](#an-introduction-to-redux)
   - [Adding Redux & Our First Store](#adding-redux--our-first-store)
+  - [Our First Reducer & Actions](#our-first-reducer--actions)
+  - [Properties On Actions & In Reducers](#properties-on-actions--in-reducers)
+  - [Adding Redux to Our React App](#adding-redux-to-our-react-app)
+  - [Writing a Root Reducer](#writing-a-root-reducer)
+  - [Redux DevTools](#redux-devtools)
+  - [Connecting to React](#connecting-to-react)
+  - [Dispatching Actions from Components](#dispatching-actions-from-components)
+  - [Action Creators Explained](#action-creators-explained)
+  - [Bind Action Creators](#bind-action-creators)
+  - [Action Type Constants](#action-type-constants)
+  - [Adding Middleware Redux Logger](#adding-middleware-redux-logger)
+  - [Redux Thunks and API Calls for Actions](#redux-thunks-and-api-calls-for-actions)
+  - [Loading Our Data with componentDidMount](#loading-our-data-with-componentdidmount)
+  - [Loading State](#loading-state)
+  - [Resetting Our Store & Props in Actions](#resetting-our-store--props-in-actions)
+  - [Local Storage](#local-storage)
 
 ## An Introduction to Redux
 
@@ -278,14 +294,14 @@ import { connect } from 'react-redux';
 
 const Toggle = ({ messageVisibility }) => (
   <div>
-    {messageVisibility &&
+    {messageVisibility && (
       <p>You will be seeing this if redux action is toggled</p>
-    }
+    )}
     <button>Toggle Me</button>
   </div>
 );
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   messageVisibility: state.message.messageVisibility,
 });
 
@@ -295,20 +311,15 @@ export default connect(mapStateToProps)(Toggle);
 - last line connects the component to the Redux store
 - now when the app uses the Toggle component, it will be using an enhanced version of it since Toggle has access to the Redux store
 - `mapStateToProps()` - allows you to pick which pieces of your store your component will have access to
-    - as your app store scales, you don't need every component to access to the entire state tree
-    - they should only have access to what they need and nothing more
+  - as your app store scales, you don't need every component to access to the entire state tree
+  - they should only have access to what they need and nothing more
 
 _src/App.js_
 
 ```javascript
 /* eslint react/no-did-mount-set-state: 0 */
 import React, { Component } from 'react';
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  Link,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
@@ -322,25 +333,21 @@ import MoviesList from './MoviesList';
 import MovieDetail from './MovieDetail';
 import Toggle from './Toggle';
 
-const store = createStore(
-  rootReducer,
-  {},
-  composeWithDevTools(),
-);
+const store = createStore(rootReducer, {}, composeWithDevTools());
 
 const App = () => (
   <Provider store={store}>
     <Router>
-      <div className="App">
-        <header className="App-header">
-          <Link to="/">
-            <img src={logo} className="App-logo" alt="logo" />
+      <div className='App'>
+        <header className='App-header'>
+          <Link to='/'>
+            <img src={logo} className='App-logo' alt='logo' />
           </Link>
         </header>
         <Toggle />
         <Switch>
-          <Route exact path="/" component={MoviesList} />
-          <Route path="/:id" component={MovieDetail} />
+          <Route exact path='/' component={MoviesList} />
+          <Route path='/:id' component={MovieDetail} />
         </Switch>
       </div>
     </Router>
@@ -439,10 +446,10 @@ export default connect(mapStateToProps)(Toggle);
 ![react dev tools](assets/images/toggle_reactDevTool.png)
 
 - after adding an `onClick` event to the toggle button, have the arrow function return `dispatch({type: 'TOGGLE_MESSAGE'})`, you will see below in the screen shot, the toggle action fires
-    - this tells Redux on this event, dispatch 'TOGGLE_MESSAGE' action
-    - the reducer receives an action of 'TOGGLE_MESSAGE'
-    - the reducer then looks for that action type
-    - once it finds the action type, it will return whatever that type says to return, in this instance initially it just returns state (we will actually have it return new state where it will toggle `messageVisibility` to the opposite of whatever it is currently in state as
+  - this tells Redux on this event, dispatch 'TOGGLE_MESSAGE' action
+  - the reducer receives an action of 'TOGGLE_MESSAGE'
+  - the reducer then looks for that action type
+  - once it finds the action type, it will return whatever that type says to return, in this instance initially it just returns state (we will actually have it return new state where it will toggle `messageVisibility` to the opposite of whatever it is currently in state as
 
 ![inital toggle action](assets/images/initial_toggle_action.gif)
 
@@ -482,10 +489,10 @@ export default connect(mapStateToProps)(Toggle);
 
 - as is right now, Toggle.js does not make much sense because the action and visibility state all live within the toggle component
 - the idea behind Redux to save the state in the global store if they are taking place outside the component
-    - everytime you need an event to fire, do you want to have to create a function to dispatch the function? (like the `onClick` event in the avoe code)
-        - Hint: no
+  - everytime you need an event to fire, do you want to have to create a function to dispatch the function? (like the `onClick` event in the avoe code)
+    - Hint: no
 - better to create a function 'toggleMessage' in a separate file, import that function into the component and then call that function instead
-    - makes the action reusable
+  - makes the action reusable
 
 _src/actions.js_
 
@@ -495,7 +502,7 @@ export function toggleMessage() {
     type: 'TOGGLE_MESSAGE',
   };
 }
-``` 
+```
 
 _src/Toggle.js_
 
@@ -508,21 +515,24 @@ import { toggleMessage } from './actions';
 
 const Toggle = ({ messageVisibility, toggleMessage }) => (
   <div>
-    {messageVisibility &&
+    {messageVisibility && (
       <p>You will be seeing this if redux action is toggled</p>
-    }
-    <button onClick={toggleMessage}>Toggle Me
-    </button>
+    )}
+    <button onClick={toggleMessage}>Toggle Me</button>
   </div>
 );
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   messageVisibility: state.message.messageVisibility,
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators({
-  toggleMessage,
-}, dispatch);
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      toggleMessage,
+    },
+    dispatch
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(Toggle);
 ```
@@ -566,10 +576,7 @@ const mapDispatchToProps = (dispatch) =>
 export default connect(mapStateToProps, mapDispatchToProps)(Toggle);
 ```
 
-`const mapDispatchToProps = (dispatch) => bindActionCreators({ toggleMessage, }, dispatch);` basically takes the function toggleMessage and turns it into a prop
-    - what this does it is bind dispatch (second argument) to the first argument (object of all actions for this particular component)
-    - eliminates the need to pass dispatch into the component
-    - just pass in toggleMessage instead
+`const mapDispatchToProps = (dispatch) => bindActionCreators({ toggleMessage, }, dispatch);` basically takes the function toggleMessage and turns it into a prop - what this does it is bind dispatch (second argument) to the first argument (object of all actions for this particular component) - eliminates the need to pass dispatch into the component - just pass in toggleMessage instead
 
 - In the grand scheme of things, it may add some code, but it is much cleaner and easier to read
 
@@ -630,17 +637,11 @@ _src/App.js_
 ```javascript
 /* eslint react/no-did-mount-set-state: 0 */
 import React, { Component } from 'react';
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  Link,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { applyMiddleware, createStore } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import logger from 'redux-logger';
-
 
 import logo from './logo.svg';
 import './App.css';
@@ -656,22 +657,22 @@ const middleware = [logger];
 const store = createStore(
   rootReducer,
   {},
-  composeWithDevTools(applyMiddleware(...middleware)),
+  composeWithDevTools(applyMiddleware(...middleware))
 );
 
 const App = () => (
   <Provider store={store}>
     <Router>
-      <div className="App">
-        <header className="App-header">
-          <Link to="/">
-            <img src={logo} className="App-logo" alt="logo" />
+      <div className='App'>
+        <header className='App-header'>
+          <Link to='/'>
+            <img src={logo} className='App-logo' alt='logo' />
           </Link>
         </header>
         <Toggle />
         <Switch>
-          <Route exact path="/" component={MoviesList} />
-          <Route path="/:id" component={MovieDetail} />
+          <Route exact path='/' component={MoviesList} />
+          <Route path='/:id' component={MovieDetail} />
         </Switch>
       </div>
     </Router>
@@ -707,7 +708,9 @@ export function toggleMessage() {
 
 export function getMovies() {
   return async function (dispatch) {
-    const res = await fetch('https://api.themoviedb.org/3/discover/movie?api_key=65e043c24785898be00b4abc12fcdaae&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1');
+    const res = await fetch(
+      'https://api.themoviedb.org/3/discover/movie?api_key=65e043c24785898be00b4abc12fcdaae&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1'
+    );
     const movies = await res.json();
     return dispatch({
       type: 'GET_MOVIES',
@@ -722,12 +725,7 @@ _src/App.js_
 ```javascript
 /* eslint react/no-did-mount-set-state: 0 */
 import React, { Component } from 'react';
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  Link,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { applyMiddleware, createStore } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
@@ -748,22 +746,22 @@ const middleware = [logger, thunk];
 const store = createStore(
   rootReducer,
   {},
-  composeWithDevTools(applyMiddleware(...middleware)),
+  composeWithDevTools(applyMiddleware(...middleware))
 );
 
 const App = () => (
   <Provider store={store}>
     <Router>
-      <div className="App">
-        <header className="App-header">
-          <Link to="/">
-            <img src={logo} className="App-logo" alt="logo" />
+      <div className='App'>
+        <header className='App-header'>
+          <Link to='/'>
+            <img src={logo} className='App-logo' alt='logo' />
           </Link>
         </header>
         <Toggle />
         <Switch>
-          <Route exact path="/" component={MoviesList} />
-          <Route path="/:id" component={MovieDetail} />
+          <Route exact path='/' component={MoviesList} />
+          <Route path='/:id' component={MovieDetail} />
         </Switch>
       </div>
     </Router>
@@ -813,26 +811,26 @@ import { toggleMessage, getMovies } from './actions';
 
 const Toggle = ({ messageVisibility, toggleMessage, getMovies }) => (
   <div>
-    {messageVisibility &&
+    {messageVisibility && (
       <p>You will be seeing this if redux action is toggled</p>
-    }
-    <button onClick={toggleMessage}>
-      Toggle Me
-    </button>
-    <button onClick={getMovies}>
-      Load Movies
-    </button>
+    )}
+    <button onClick={toggleMessage}>Toggle Me</button>
+    <button onClick={getMovies}>Load Movies</button>
   </div>
 );
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   messageVisibility: state.message.messageVisibility,
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators({
-  toggleMessage,
-  getMovies,
-}, dispatch);
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      toggleMessage,
+      getMovies,
+    },
+    dispatch
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(Toggle);
 ```
